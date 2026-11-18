@@ -63,6 +63,7 @@ else
   mv "$stage" "$release"
 fi
 stage=''
+chmod 0755 "$release"
 
 if ! id webtracker >/dev/null 2>&1; then
   useradd --system --home-dir /var/lib/web-tracker --create-home --shell /usr/sbin/nologin webtracker
