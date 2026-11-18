@@ -20,6 +20,8 @@ Required: `DATABASE_URL`, `APP_ORIGIN`, `ADMIN_PASSWORD` (16+ characters), `VAUL
 
 ## Deployment handoff for ChatGPT Work
 
+For the existing Ubuntu 24.04 Oracle VM, see [ops/ORACLE.md](ops/ORACLE.md). The included installer keeps Web Tracker on a separate service and localhost port, provisions PostgreSQL, Caddy routing, and local database backups. Screenshot capture remains disabled pending an isolated worker.
+
 1. Inspect this repository and existing Oracle VM services without disrupting other deployments.
 2. Confirm Node 22+, PostgreSQL and disk capacity. Run dependency installation, lint/build and smoke tests; fix any failures before going live.
 3. Provision an isolated PostgreSQL database/user. Supply environment variables using a protected runtime secret store, not a committed `.env`.
