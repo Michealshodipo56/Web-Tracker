@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://web-tracker.145-241-223-113.nip.io/api/:path*"
+    }
+  ]
+}
