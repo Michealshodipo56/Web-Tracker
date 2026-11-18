@@ -7,6 +7,11 @@ export function parseRepo(value) {
   return parts.join('/');
 }
 
+export function parseStoredRepo(value) {
+  if (typeof value !== 'string') throw Error('Invalid stored repository');
+  return parseRepo(`https://github.com/${value}`);
+}
+
 export function validMilestonePath(file) {
   return typeof file === 'string' && file.length <= 256 && /^(?!\/)(?!.*\.\.)(?!.*\\)[\w./-]+\.md$/i.test(file);
 }

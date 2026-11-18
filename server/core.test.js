@@ -1,11 +1,18 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseRepo, validMilestonePath, parseWebsiteUrl, milestoneParse } from './core.js';
+import { parseRepo, parseStoredRepo, validMilestonePath, parseWebsiteUrl, milestoneParse } from './core.js';
 
 test('repository parser accepts only GitHub roots', () => {
   assert.equal(parseRepo('https://github.com/Michealshodipo56/Web-Tracker'), 'Michealshodipo56/Web-Tracker');
   for (const url of ['https://github.com/a/b/tree/main', 'https://github.com/a/b?x=1', 'https://github.com@evil.example/a/b', 'http://github.com/a/b', 'https://github.com/a/..']) {
     assert.throws(() => parseRepo(url), url);
+  }
+});
+
+test('stored repository slugs resolve for milestone sync', () => {
+  assert.equal(parseStoredRepo('Michealshodipo56/Web-Tracker'), 'Michealshodipo56/Web-Tracker');
+  for (const value of ['https://github.com/a/b', 'a/b/tree/main', '../b', 'a/b?ref=main']) {
+    assert.throws(() => parseStoredRepo(value), value);
   }
 });
 
