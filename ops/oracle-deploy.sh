@@ -194,7 +194,15 @@ systemctl daemon-reload
 systemctl enable --now web-tracker-backup.timer
 systemctl start web-tracker-backup.service
 
-curl -fsS --retry 6 --retry-delay 5 "https://$domain/api/health" | grep -q '"ok"'
+https_ready=0
+for attempt in {1..24}; do
+  if curl -fsS --max-time 6 "https://$domain/api/health" 2>/dev/null | grep -q '"ok"'; then
+    https_ready=1
+    break
+  fi
+  sleep 5
+done
+[[ "$https_ready" == 1 ]] || { echo 'HTTPS certificate or route did not become healthy within two minutes.' >&2; exit 1; }
 echo "Web Tracker core service is healthy at https://$domain"
 echo "Release: $sha"
 echo 'Screenshot capture remains disabled until an isolated worker is implemented and verified.'
