@@ -7,14 +7,14 @@ GitHub-first website portfolio manager with milestone tracking, screenshots and 
 - Import repositories from `https://github.com/owner/repo` and retrieve GitHub metadata
 - Parse Markdown checkbox milestones from `MILESTONES.md` (customizable path)
 - Calculate project completion percentage and current stage
-- Manually sync milestone progress from GitHub
+- Sync milestone progress from GitHub on import, on demand, and every 15 minutes by default while the API runs
 - Configure deployed HTTPS website URL and capture screenshot on demand
 - Store secrets encrypted using AES-256-GCM; list names without exposing values, reveal on explicit action
 - Administrator password login, server-side session records and HTTP-only session cookies
 
 ## Local development
 
-Node 22+ and PostgreSQL required. Run `npm install`, create a local PostgreSQL database, configure environment variables from `.env.example` **outside version control**, then `npm run dev` for the Vite frontend and `npm start` for the API. Vite development must proxy `/api` to the backend or use the same-origin production build. For a production deployment run `npm run build` and `npm start` with `NODE_ENV=production`.
+Node 22+ and PostgreSQL required. Run `npm ci`, create a local PostgreSQL database, configure environment variables from `.env.example` **outside version control**, then `npm run dev` for the Vite frontend and `npm start` for the API. Vite development proxies `/api` to the backend. For a production deployment run `npm test`, `npm run check`, `npm run build`, and `npm start` with `NODE_ENV=production`. The API binds to `127.0.0.1` by default; `MILESTONE_SYNC_MINUTES` sets the polling interval (5–1440).
 
 Required: `DATABASE_URL`, `APP_ORIGIN`, `ADMIN_PASSWORD` (16+ characters), `VAULT_KEY` (32 random bytes base64). Optional: `GITHUB_TOKEN` for private repositories, `PORT`, `TRUST_PROXY`. Keep secrets outside Git and backed up securely. See `server/README.md`.
 
@@ -33,4 +33,4 @@ Required: `DATABASE_URL`, `APP_ORIGIN`, `ADMIN_PASSWORD` (16+ characters), `VAUL
 
 ## Current limitations
 
-This is an **implementation foundation, not a verified production deployment**. It has not been installed or run against an Oracle VM yet. Screenshots are disabled by default and require isolated execution. Milestone sync is currently manual (and attempted on import), not webhook-triggered. The login model is single-administrator, with no password recovery or multiuser permissions. The secret vault encrypts values server-side but the admin password is not a separate client-side decryption factor. Imported projects from the earlier browser-only version are not automatically migrated. Do not expose this to the internet without the deployment hardening and testing above.
+This is an **implementation foundation, not a verified production deployment**. It has not been installed or run against an Oracle VM yet. The screenshot endpoint returns 503 until a separate worker with verified network isolation is implemented; setting `ENABLE_SCREENSHOTS` cannot bypass this guard. Automatic milestone polling is process-local and retries on the next interval; production deployments should run one API instance or coordinate polling. The login model is single-administrator, with no password recovery or multiuser permissions. The secret vault encrypts values server-side but the admin password is not a separate client-side decryption factor. Imported projects from the earlier browser-only version are not automatically migrated. Do not expose this to the internet without the deployment hardening and testing above.
