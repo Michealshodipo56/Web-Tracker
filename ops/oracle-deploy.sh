@@ -63,7 +63,9 @@ else
   mv "$stage" "$release"
 fi
 stage=''
-chmod 0755 "$release"
+# The build runs under umask 077. Make only the public release tree readable
+# by the unprivileged systemd user; secrets live outside this tree.
+chmod -R a+rX "$release"
 
 if ! id webtracker >/dev/null 2>&1; then
   useradd --system --home-dir /var/lib/web-tracker --create-home --shell /usr/sbin/nologin webtracker
