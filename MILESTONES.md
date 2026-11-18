@@ -22,8 +22,8 @@
 - [x] Make the milestone list compact and mobile-friendly
 - [x] Remove screenshot capture from the user interface
 - [x] Rewrite the README for the personal project tracker
-- [ ] Keep project descriptions synchronized with GitHub repository metadata
-- [ ] Verify project description updates in the deployed application
+- [x] Keep project descriptions synchronized with GitHub repository metadata
+- [ ] Deploy and verify GitHub-sourced project descriptions in the live application
 
 # Quality assurance
 
