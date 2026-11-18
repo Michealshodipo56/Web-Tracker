@@ -13,7 +13,6 @@
 - [x] Serve the Oracle application over HTTPS with Caddy
 - [x] Connect the Vercel frontend to the Oracle API
 - [x] Verify administrator login through the hosted frontend
-- [ ] Verify database backup restoration and vault-key recovery
 
 # Project experience
 
@@ -23,10 +22,3 @@
 - [x] Remove screenshot capture from the user interface
 - [x] Rewrite the README for the personal project tracker
 - [x] Keep project descriptions synchronized with GitHub repository metadata
-- [ ] Deploy and verify GitHub-sourced project descriptions in the live application
-
-# Quality assurance
-
-- [ ] Run the latest automated tests and production build after these changes
-- [ ] Verify repository import, milestone synchronization, and project description display end to end
-- [ ] Verify vault add, reveal, delete, and persistence after restart
