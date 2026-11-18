@@ -24,7 +24,7 @@ services:
       - key: ADMIN_PASSWORD
         sync: false
       - key: VAULT_KEY
-        generateValue: true
+        sync: false
       - key: APP_ORIGIN
         sync: false
       - key: MILESTONE_SYNC_MINUTES
