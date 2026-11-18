@@ -11,7 +11,7 @@ const port=Number(process.env.PORT||4000), production=process.env.NODE_ENV==='pr
 const host=process.env.HOST||'127.0.0.1';
 const key=process.env.VAULT_KEY?Buffer.from(process.env.VAULT_KEY,'base64'):null;
 if(!key||key.length!==32)throw Error('VAULT_KEY must be a base64-encoded 32-byte key');
-if(!process.env.ADMIN_PASSWORD||process.env.ADMIN_PASSWORD.length<16)throw Error('ADMIN_PASSWORD must have at least 16 characters');
+if(!process.env.ADMIN_PASSWORD)throw Error('ADMIN_PASSWORD is required');
 if(!process.env.DATABASE_URL)throw Error('DATABASE_URL required');
 if(production && (!process.env.APP_ORIGIN || (()=>{try{return new URL(process.env.APP_ORIGIN).origin!==process.env.APP_ORIGIN||new URL(process.env.APP_ORIGIN).protocol!=='https:'}catch{return true}})()))throw Error('APP_ORIGIN must be an exact HTTPS origin');
 app.disable('x-powered-by');app.set('trust proxy',process.env.TRUST_PROXY==='1'?1:false);
@@ -24,7 +24,7 @@ const constant=(a,b)=>{const x=Buffer.from(a),y=Buffer.from(b);return x.length==
 const passwordHash=crypto.scryptSync(process.env.ADMIN_PASSWORD,'web-tracker-admin-v1',64);
 const cookies=req=>Object.fromEntries((req.headers.cookie||'').split(';').filter(Boolean).map(p=>{const i=p.indexOf('=');return[p.slice(0,i).trim(),p.slice(i+1).trim()]}));
 const auth=async(req,res,next)=>{try{const token=cookies(req).wt_session;if(!token||!(/^[a-f0-9]{64}$/.test(token)))return res.status(401).json({error:'Authentication required'});const result=await query('SELECT 1 FROM sessions WHERE id_hash=$1 AND expires_at>now()',[hash(token)]);if(!result.rowCount)return res.status(401).json({error:'Session expired'});next()}catch(err){next(err)}};
-app.use('/api',(req,res,next)=>{if(['GET','HEAD','OPTIONS'].includes(req.method))return next();const origin=req.get('origin');const expected=process.env.APP_ORIGIN;if(!expected||!origin||origin!==expected)return res.status(403).json({error:'Invalid origin'});next()});
+app.use('/api',(req,res,next)=>{if(['GET','HEAD','OPTIONS'].includes(req.method))return next();const origin=req.get('origin');const allowed=[process.env.APP_ORIGIN,process.env.FRONTEND_ORIGIN].filter(Boolean);if(!origin||!allowed.includes(origin))return res.status(403).json({error:'Invalid origin'});next()});
 app.post('/api/login',rateLimit({windowMs:15*60*1000,limit:8}),async(req,res,next)=>{try{if(typeof req.body?.password!=='string'||req.body.password.length>1024)return res.status(401).json({error:'Invalid credentials'});const candidate=crypto.scryptSync(req.body.password,'web-tracker-admin-v1',64);if(!crypto.timingSafeEqual(candidate,passwordHash))return res.status(401).json({error:'Invalid credentials'});const token=crypto.randomBytes(32).toString('hex');await query("INSERT INTO sessions(id_hash,expires_at) VALUES($1,now()+interval '12 hours')",[hash(token)]);res.cookie('wt_session',token,{httpOnly:true,secure:production,sameSite:'strict',maxAge:12*60*60*1000,path:'/'}).json({ok:true})}catch(err){next(err)}});
 app.post('/api/logout',auth,async(req,res,next)=>{try{await query('DELETE FROM sessions WHERE id_hash=$1',[hash(cookies(req).wt_session)]);res.clearCookie('wt_session',{path:'/'}).json({ok:true})}catch(err){next(err)}});
 app.get('/api/session',auth,(_req,res)=>res.json({ok:true}));
